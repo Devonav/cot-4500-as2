@@ -26,7 +26,7 @@ Top Level
    ```sh
    git clone https://github.com/Devonav/cot-4500-as2.git
    cd cot-4500-as2
-## install Dependencies
+## Install Dependencies
 pip install -r requirements.txt
 
 
