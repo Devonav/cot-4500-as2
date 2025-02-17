@@ -41,8 +41,8 @@ def forward_difference_table(x_values, y_values):
         diff_table[i][0] = y_values[i]
 
     # Compute forward differences with step size correction
-    for j in range(1, n):
-        for i in range(n - j):
+    for j in range(1, n):  # Column index
+        for i in range(n - j):  # Row index
             diff_table[i][j] = (diff_table[i+1][j-1] - diff_table[i][j-1]) / (x_values[i + j] - x_values[i])
 
     return diff_table
@@ -69,49 +69,62 @@ y_vals_q2 = np.array([23.5492, 25.3913, 26.8224, 27.4589])
 diff_table_q2 = forward_difference_table(x_vals_q2, y_vals_q2)
 
 print("\nQuestion 2: Forward Differences")
-for i in range(3):
+for i in range(3):  # Print only first 3 forward differences
     print(diff_table_q2[0][i+1])
 
 x_target_q3 = 7.3
 approximation_q3 = evaluate_newton_forward(x_vals_q2, diff_table_q2, x_target_q3)
 print(f"\nQuestion 3: Approximation for f({x_target_q3}): {approximation_q3}")
-
 ### Question 4: Hermite Interpolation ###
+
+
+
 def hermite_divided_difference_table(x_values, y_values, dy_values):
     """Constructs the divided difference table for Hermite interpolation."""
     n = len(x_values)
-    size = 2 * n
+    size = 2 * n  # Because each x-value appears twice
     table = np.zeros((size, size))
 
     z_values = np.zeros(size)
     f_values = np.zeros(size)
 
+    # Fill z_values and f_values with duplicate x-values and function values
     for i in range(n):
         z_values[2*i] = x_values[i]
         z_values[2*i+1] = x_values[i]
         f_values[2*i] = y_values[i]
         f_values[2*i+1] = y_values[i]
 
-    table[:, 0] = f_values
+    # First column: x-values
+    table[:, 0] = z_values
+    # Second column: f(x) values
+    table[:, 1] = f_values
 
+    # First-order divided differences
     for i in range(n):
-        table[2*i+1, 1] = dy_values[i]
+        table[2*i+1, 2] = dy_values[i]  # f'(x) goes directly into first-order differences
         if i != 0:
-            table[2*i, 1] = (table[2*i, 0] - table[2*i-1, 0]) / (z_values[2*i] - z_values[2*i-1])
+            table[2*i, 2] = (table[2*i, 1] - table[2*i-1, 1]) / (z_values[2*i] - z_values[2*i-1])
 
-    for j in range(2, size):
+    # Higher-order divided differences
+    for j in range(3, size):  # Starting from the third column
         for i in range(size - j):
-            table[i][j] = (table[i+1][j-1] - table[i][j-1]) / (z_values[i+j] - z_values[i])
+            table[i][j] = (table[i+1][j-1] - table[i][j-1]) / (z_values[i+j-1] - z_values[i])
 
     return table
 
-x_vals_q4 = [3.6, 3.8, 3.9]
-y_vals_q4 = [1.675, 1.436, 1.318]
-dy_vals_q4 = [-1.195, -1.188, -1.182]
+# Given data for Hermite Interpolation
+x_vals_q4 = np.array([3.6, 3.8, 3.9])
+y_vals_q4 = np.array([1.675, 1.436, 1.318])
+dy_vals_q4 = np.array([-1.195, -1.188, -1.182])
 
+# Compute the Hermite divided difference table
 hermite_table = hermite_divided_difference_table(x_vals_q4, y_vals_q4, dy_vals_q4)
-print("\nQuestion 4: Hermite Interpolation Table")
+
+# Print the corrected Hermite interpolation table
+print("\nQuestion 4: Corrected Hermite Interpolation Table")
 print(hermite_table)
+
 
 ### Question 5: Cubic Spline Interpolation ###
 def cubic_spline_matrices(x_values, y_values):
